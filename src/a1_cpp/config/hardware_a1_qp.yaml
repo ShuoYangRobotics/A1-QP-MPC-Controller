@@ -1,0 +1,69 @@
+use_sim_time: false
+a1_hardware_power_level: 8
+stance_leg_control_type: 0 # 0: QP; 1: MPC
+
+# physics parameters
+
+a1_robot_mass: 15.0
+
+# default foothold position
+
+a1_default_foot_pos_FL_x: 0.17
+a1_default_foot_pos_FL_y: 0.15
+a1_default_foot_pos_FL_z: -0.33
+
+a1_default_foot_pos_FR_x: 0.17
+a1_default_foot_pos_FR_y: -0.15
+a1_default_foot_pos_FR_z: -0.33
+
+a1_default_foot_pos_RL_x: -0.17
+a1_default_foot_pos_RL_y: 0.15
+a1_default_foot_pos_RL_z: -0.33
+
+a1_default_foot_pos_RR_x: -0.17
+a1_default_foot_pos_RR_y: -0.15
+a1_default_foot_pos_RR_z: -0.33
+
+a1_gait_counter_speed_FL: 1.0
+a1_gait_counter_speed_FR: 1.0
+a1_gait_counter_speed_RL: 1.0
+a1_gait_counter_speed_RR: 1.0
+
+# foot swing controller parameters
+# force_tgt = km_foot * kp_foot * foot_pos_error
+
+a1_kp_foot_x: 260.0
+a1_kp_foot_y: 260.0
+a1_kp_foot_z: 350.0
+
+a1_kd_foot_x: 6.0
+a1_kd_foot_y: 6.0
+a1_kd_foot_z: 5.0
+
+a1_km_foot_x: 0.1
+a1_km_foot_y: 0.1
+a1_km_foot_z: 0.1
+
+# foot stance force controller parameters
+# root_acc = [root_ddot_p_deisre; root_ddot_w_desire]
+#   root_ddot_p_deisre = kp_linear (pos error)
+#                        + kd_linear (linear velocity error)
+#   root_ddot_w_desire = kp_angular (euler error)
+#                        + kd_linear (rotation velocity error)
+# root_acc are used to compute ground contact force
+
+a1_kp_linear_x: 400.0
+a1_kp_linear_y: 400.0
+a1_kp_linear_z: 1500.0
+
+a1_kd_linear_x: 300.0
+a1_kd_linear_y: 200.0
+a1_kd_linear_z: 120.0
+
+a1_kp_angular_x: 40.0
+a1_kp_angular_y: 40.0
+a1_kp_angular_z: 10.0
+
+a1_kd_angular_x: 1.0
+a1_kd_angular_y: 1.0
+a1_kd_angular_z: 0.5

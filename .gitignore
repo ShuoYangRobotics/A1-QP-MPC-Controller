@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+
+build
+devel
+logs
+src/a1_cpp/cmake-build-debug
+.catkin_tools
+.idea
+.vscode
+src/a1_cpp/cmake-build-debug-remote/
+
+src/a1_cpp/src/mpc_osqp.cc

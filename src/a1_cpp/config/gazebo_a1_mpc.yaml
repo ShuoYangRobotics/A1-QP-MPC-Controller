@@ -1,0 +1,87 @@
+use_sim_time: true
+stance_leg_control_type: 1 # 0: QP; 1: MPC
+
+# physics parameters
+
+a1_robot_mass: 12.0
+
+a1_trunk_inertia_xx: 0.0158533
+a1_trunk_inertia_xy: 0.0
+a1_trunk_inertia_xz: 0.0
+a1_trunk_inertia_yz: 0.0
+a1_trunk_inertia_yy: 0.0377999
+a1_trunk_inertia_zz: 0.0456542
+
+# default foothold position
+
+a1_default_foot_pos_FL_x: 0.17
+a1_default_foot_pos_FL_y: 0.15
+a1_default_foot_pos_FL_z: -0.35
+
+a1_default_foot_pos_FR_x: 0.17
+a1_default_foot_pos_FR_y: -0.15
+a1_default_foot_pos_FR_z: -0.35
+
+a1_default_foot_pos_RL_x: -0.17
+a1_default_foot_pos_RL_y: 0.15
+a1_default_foot_pos_RL_z: -0.35
+
+a1_default_foot_pos_RR_x: -0.17
+a1_default_foot_pos_RR_y: -0.15
+a1_default_foot_pos_RR_z: -0.35
+
+a1_gait_counter_speed_FL: 1.5
+a1_gait_counter_speed_FR: 1.5
+a1_gait_counter_speed_RL: 1.5
+a1_gait_counter_speed_RR: 1.5
+
+# MPC parameters
+
+q_weights_0: 20.0 # roll
+q_weights_1: 10.0 # pitch
+q_weights_2: 1.0 # yaw
+
+q_weights_3: 0.0 # pos x
+q_weights_4: 0.0 # pos y
+q_weights_5: 420.0 # pos z
+
+q_weights_6: 0.05 # omega x
+q_weights_7: 0.05 # omega y
+q_weights_8: 0.05 # omega z
+
+q_weights_9: 30.0 # vel x
+q_weights_10: 30.0 # vel y
+q_weights_11: 10.0 # vel z
+
+q_weights_12: 0.0
+
+r_weights_0: 1e-7
+r_weights_1: 1e-7
+r_weights_2: 1e-7
+
+r_weights_3: 1e-7
+r_weights_4: 1e-7
+r_weights_5: 1e-7
+
+r_weights_6: 1e-7
+r_weights_7: 1e-7
+r_weights_8: 1e-7
+
+r_weights_9: 1e-7
+r_weights_10: 1e-7
+r_weights_11: 1e-7
+
+# foot swing controller parameters
+# force_tgt = km_foot * kp_foot * foot_pos_error
+
+a1_kp_foot_x: 200.0
+a1_kp_foot_y: 200.0
+a1_kp_foot_z: 150.0
+
+a1_kd_foot_x: 10.0
+a1_kd_foot_y: 10.0
+a1_kd_foot_z: 5.0
+
+a1_km_foot_x: 0.1
+a1_km_foot_y: 0.1
+a1_km_foot_z: 0.1

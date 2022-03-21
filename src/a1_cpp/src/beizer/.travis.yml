@@ -1,0 +1,10 @@
+language: cpp
+
+matrix:
+    include:
+        - os: linux
+          script: ./build.sh
+        - os: osx
+          script: ./build.sh
+        - os: windows
+          script: ./build.sh
