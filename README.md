@@ -1,9 +1,9 @@
 # A1-QP-MPC-Controller
 ## Introduction
 
-This repo provides a quadruped controller that controls Unitree A1 robot, one of the most popular quadruped robots used in academic research in recent years.
+This repo provides a quadruped controller that controls Unitree A1 robot, one of the most popular quadruped robots used in academic research in recent years. This controller 
 
-To facilitate quadruped application development, we provides interfaces to use this controller to control either simulated robots or real robots. We support following types of robots
+To facilitate quadruped research and application development, we provides interfaces to use this controller to control either simulated robots or real robots. We support following types of robots
 
     1. A1 Robot simulated in Nvidia Isaac Sim Simulator
     2. A1 Robot simulated in Gazebo Simulator
@@ -86,12 +86,10 @@ The Gazebo demo relies on the gazebo simulator environment developed by Unitree 
 Also, notice ROS melodic supports up to Gazebo 9 so please use Gazebo version < 9.
 
 ### Setup
-On the host computer, install unitree SDK following https://github.com/paulyang1990/unitree_ros instead of the original source. Make sure by the end you can launch the A1 robot simulation using
+On the host computer, install unitree SDK following https://github.com/ShuoYangRobotics/unitree_ros instead of the original source. Make sure by the end you can launch the A1 robot simulation using
 
 ```shell
 roslaunch unitree_gazebo normal.launch rname:=a1 wname:=stairs_new
-# or
-roslaunch unitree_gazebo normal.launch rname:=a1
 ```
 
 ### Adjust the robot in the Gazebo
@@ -169,6 +167,8 @@ ssh root@localhost -p2233
 Go to folder "/root/A1_Ctrl/", then do 
 ```shell
 catkin build 
+source /root/A1_Ctrl/devel/setup.bash
+echo "source /root/A1_Ctrl/devel/setup.bash" >> /.bashrc
 ```
 
 Make sure the A1 robot is in "standby" mode, in which the robot is ready to receive joint commands. There are two ways to do this.
@@ -190,10 +190,7 @@ Then start the controller by go to /root/A1_Ctrl/deve/lib/a1_cpp
 
 Or use a roslaunch file
 ```shell
-cd /root/A1_Ctrl/
-catkin build
 source /root/A1_Ctrl/devel/setup.bash
-echo "source /root/A1_Ctrl/devel/setup.bash" >> /.bashrc
 roslaunch a1_cpp a1_ctrl.launch type:=hardware solver_type:=mpc
 # notice the type is different from the Gazebo or Isaac simulation; solver_type can be qp or mpc
 ```
@@ -203,3 +200,7 @@ ROS environment (come from either an XBox joystick attaches to the robot or from
 another device in the network), the robot can respond to the joy command the same way
 as that in the Gazebo demo. 
 
+## Acknowledgement
+We referenced the controller architecture written by Dr. Xinye Da, General Manager of PX Robotics. 
+
+Zixin Zhang implemented a part of the convex MPC controller. 
