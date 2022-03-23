@@ -391,9 +391,9 @@ joy_callback(const sensor_msgs::Joy::ConstPtr &joy_msg) {
     }
 
     // right updown
-    joy_cmd_velx = joy_msg->axes[4] * JOY_CMD_VELX_MAX;
+    joy_cmd_velx = joy_msg->axes[5] * JOY_CMD_VELX_MAX;
     // right horiz
-    joy_cmd_vely = joy_msg->axes[3] * JOY_CMD_VELY_MAX;
+    joy_cmd_vely = joy_msg->axes[2] * JOY_CMD_VELY_MAX;
     // left horiz
     joy_cmd_yaw_rate = joy_msg->axes[0] * JOY_CMD_YAW_MAX;
     // up-down button

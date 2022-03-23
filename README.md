@@ -45,17 +45,19 @@ The software only tested in **Ubuntu 18.04** and **ROS melodic**.
 First, get the dockerfile in the "docker/" folder. Build the docker using command
 
 ```shell
-sudo docker build --build-arg -t="a1_cpp_ctrl_image" .
+docker build -t a1_cpp_ctrl_image .
 ```
 
 Then we start docker by the following command
 
 ```shell
-sudo docker run -d \
-                --network host \
-                -v {PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER}:/root/A1_Ctrl/ \
-                --name a1_cpp_ctrl_docker \
-                a1_cpp_ctrl_image
+docker run -d \
+    --network host \
+    -v PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER:/root/A1_Ctrl/ \
+    --privileged \
+    -v /dev/bus/usb:/dev/bus/usb \
+    --name a1_cpp_ctrl_docker2 \
+    a1_cpp_ctrl_image2
 ```
 Notice the *PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER* must be changed to the location of the repo folder on your computer.
 
@@ -64,6 +66,8 @@ We set the docker container in a way that we use ssh to access the controller. O
 ```shell
 ssh root@localhost -p2233
 # then input passward "password" when prompted to do so
+cd /root/A1_Ctrl/
+catkin build
 ```
 
 We do it in this way because during development period, we can use VSCode remote or Clion to debug the program.
@@ -86,11 +90,57 @@ The Gazebo demo relies on the gazebo simulator environment developed by Unitree 
 Also, notice ROS melodic supports up to Gazebo 9 so please use Gazebo version < 9.
 
 ### Setup
-On the host computer, install unitree SDK following https://github.com/ShuoYangRobotics/unitree_ros instead of the original source. Make sure by the end you can launch the A1 robot simulation using
+On the host computer, build a second docker in "gazebo_docker" folder
 
 ```shell
-roslaunch unitree_gazebo normal.launch rname:=a1 wname:=stairs_new
+docker build -t a1_unitree_gazebo_image .
 ```
+
+Now we need to be careful about the graphics card of the host computer. If the host computer uses Nvidia graphics card. Then we need to install nvidia-docker2. Read [this link](http://wiki.ros.org/action/login/docker/Tutorials/Hardware%20Acceleration) for more information. 
+
+Assuming an Nvidia graphics card is used, and Nvidia driver is properly installed. First follow [this link](https://nvidia.github.io/nvidia-docker/) to add nvidia-docker repo to your host computer, then install the nvidia-docker2 follows [the instruction](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker).
+
+Then we create a script to run the image called run_gazebo_docker.bash
+
+```shell
+XAUTH=/tmp/.docker.xauth
+if [ ! -f $XAUTH ]
+then
+    xauth_list=$(xauth nlist :0 | sed -e 's/^..../ffff/')
+    if [ ! -z "$xauth_list" ]
+    then
+        echo $xauth_list | xauth -f $XAUTH nmerge -
+    else
+        touch $XAUTH
+    fi
+    chmod a+r $XAUTH
+fi
+
+docker run -it \
+    --env="DISPLAY=$DISPLAY" \
+    --env="QT_X11_NO_MITSHM=1" \
+    --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+    --env="XAUTHORITY=$XAUTH" \
+    --volume="$XAUTH:$XAUTH" \
+    --runtime=nvidia \
+    --privileged \
+    --network host \
+    --name a1_unitree_gazebo_docker \
+    a1_unitree_gazebo_image
+```
+
+After you run this script once, later you can access the docker "a1_unitree_gazebo_docker" by
+```shell
+docker start a1_unitree_gazebo_docker
+docker attach a1_unitree_gazebo_docker
+``` 
+In the docker container, run the following command to start the gazebo environment 
+
+```shell
+roslaunch unitree_gazebo normal.launch rname:=a1 wname:=stairs_new 
+```
+
+The gazebo window should be seen on the host computer. Check [the list of worlds](https://github.com/ShuoYangRobotics/unitree_ros/tree/master/unitree_gazebo/worlds) for different wname.
 
 ### Adjust the robot in the Gazebo
 During the development, we can let the robot stand up by two Unitree testing scripts. The following two commands are very handy.
@@ -101,11 +151,10 @@ rosrun unitree_controller unitree_move_kinetic # place the robot back to origin
 We oftern running the two commands alternatively by running one and ctrl-C after a while to adjust the pose of the robot.
 After the robot properly stands up, it is ready to be controlled. 
 
-
 ### Start the controller
 
-If you have completed the instructions before, there should be a runnable docker container called `a1_ros_ctrl_docker` in your computer. 
-Run the container, and start the A1 controller by
+If you have completed the instructions before, there should be a runnable docker container called `a1_cpp_ctrl_docker` in your computer. 
+Run the container, build and config the A1 controller
 ```shell
 ssh root@localhost -p2233
 # then input passward "password" when prompted to do so
@@ -113,10 +162,19 @@ cd /root/A1_Ctrl/
 catkin build
 source /root/A1_Ctrl/devel/setup.bash
 echo "source /root/A1_Ctrl/devel/setup.bash" >> /.bashrc
+```
+In the docker container, continue to run the controller
+```shell
 roslaunch a1_cpp a1_ctrl.launch type:=gazebo solver_type:=mpc # solver_type can be qp or mpc
 ```
 
-Now, the controller engages the robot in Gazebo. The robot has two mode: "stand" (default) and "walk". So the robot still stands.
+Now, the controller engages the robot in Gazebo. The robot has two modes: "stand" (default) and "walk". The robot still stands at the beginning.
+
+If there is a USB joystick connects to the host computer. The docker should be able to see it. And we can read its data in the docker. Open another terminal
+```shell
+ssh root@localhost -p2233
+rosrun joy joy_node
+```
 
 Currently we need a Linux-supported joystick like an Xbox One Controller to drive the robot around.
 you should following the insturctions in http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick to setup a joystick controller.

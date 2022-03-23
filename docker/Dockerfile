@@ -6,7 +6,7 @@ RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main"
   apt update 
 
 LABEL maintainer="shuoyang@andrew.cmu.edu"
-ENV REFRESH_AT 2021-05-31
+ENV REFRESH_AT 2022-03-20
 
 # install necessary dependencies 
 RUN   if [ "x$(nproc)" = "x1" ] ; then export USE_PROC=1 ; \
@@ -157,11 +157,13 @@ RUN   if [ "x$(nproc)" = "x1" ] ; then export USE_PROC=1 ; \
       else export USE_PROC=$(($(nproc)/2)) ; fi && \
       apt-get update && apt-get install -y \
       ros-${ROS_DISTRO}-ros-control \
+      ros-${ROS_DISTRO}-gazebo-ros \
+      ros-${ROS_DISTRO}-joy \
       ros-${ROS_DISTRO}-ros-controllers \
       ros-${ROS_DISTRO}-robot-state-publisher
 
 WORKDIR $UNITREE_WS/src
-RUN git clone https://github.com/paulyang1990/unitree_ros.git
+RUN git clone https://github.com/ShuoYangRobotics/unitree_ros.git
 WORKDIR $UNITREE_WS
 # there are some non ascii code in this file that prevents docker from catkin build the file
 # RUN perl -pi -e 's/[^[:ascii:]]//g' $UNITREE_WS/src/unitree_ros/unitree_legged_msgs/msg/MotorState.msg 

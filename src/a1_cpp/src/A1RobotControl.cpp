@@ -33,7 +33,7 @@ A1RobotControl::A1RobotControl() {
         linearMatrix.insert(NUM_LEG + i * 4, i * 3) = 1;
         linearMatrix.insert(NUM_LEG + i * 4, 2 + i * 3) = -mu;
         lowerBound(NUM_LEG + i * 4) = -OsqpEigen::INFTY;
-        // 2. -F_xi > uF_zi
+        // 2. F_xi > -uF_zi    ===> -F_xi -uF_zi < 0
         linearMatrix.insert(NUM_LEG + i * 4 + 1, i * 3) = -1;
         linearMatrix.insert(NUM_LEG + i * 4 + 1, 2 + i * 3) = -mu;
         lowerBound(NUM_LEG + i * 4 + 1) = -OsqpEigen::INFTY;
@@ -434,8 +434,8 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
     std_msgs::Float64 terrain_angle_msg;
     terrain_angle_msg.data = terrain_angle * (180 / 3.1415926);
     pub_terrain_angle.publish(terrain_angle_msg); // publish in deg
-    // std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / 3.1415926) << std::endl;
-    // std::cout << "terrain angle: " << terrain_angle << std::endl;
+    std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / 3.1415926) << std::endl;
+    std::cout << "terrain angle: " << terrain_angle << std::endl;
 
     // save calculated terrain pitch angle
     // TODO: limit terrain pitch angle to -30 to 30? 
