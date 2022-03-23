@@ -1,6 +1,5 @@
 use_sim_time: true
 stance_leg_control_type: 1 # 0: QP; 1: MPC
-robot_type: 0 # 0 : a1, 1: a1_rw 
 
 # physics parameters
 
@@ -17,19 +16,19 @@ a1_trunk_inertia_zz: 0.0456542
 
 a1_default_foot_pos_FL_x: 0.17
 a1_default_foot_pos_FL_y: 0.15
-a1_default_foot_pos_FL_z: -0.3
+a1_default_foot_pos_FL_z: -0.35
 
 a1_default_foot_pos_FR_x: 0.17
 a1_default_foot_pos_FR_y: -0.15
-a1_default_foot_pos_FR_z: -0.3
+a1_default_foot_pos_FR_z: -0.35
 
 a1_default_foot_pos_RL_x: -0.17
 a1_default_foot_pos_RL_y: 0.15
-a1_default_foot_pos_RL_z: -0.3
+a1_default_foot_pos_RL_z: -0.35
 
 a1_default_foot_pos_RR_x: -0.17
 a1_default_foot_pos_RR_y: -0.15
-a1_default_foot_pos_RR_z: -0.3
+a1_default_foot_pos_RR_z: -0.35
 
 a1_gait_counter_speed_FL: 1.5
 a1_gait_counter_speed_FR: 1.5

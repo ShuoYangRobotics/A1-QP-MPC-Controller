@@ -111,18 +111,18 @@ void ConvexMpc::calculate_A_mat_c(Eigen::Vector3d root_euler) {
 //    std::cout << "yaw: " << root_euler[2] << std::endl;
     double cos_yaw = cos(root_euler[2]);
     double sin_yaw = sin(root_euler[2]);
-   double cos_pitch = cos(root_euler[1]);
-   double tan_pitch = tan(root_euler[1]);
+//    double cos_pitch = cos(root_euler[1]);
+//    double tan_pitch = tan(root_euler[1]);
 
     Eigen::Matrix3d ang_vel_to_rpy_rate;
 
-   ang_vel_to_rpy_rate << cos_yaw / cos_pitch, sin_yaw / cos_pitch, 0,
-           -sin_yaw, cos_yaw, 0,
-           cos_yaw * tan_pitch, sin_yaw * tan_pitch, 1;
+//    ang_vel_to_rpy_rate << cos_yaw / cos_pitch, sin_yaw / cos_pitch, 0,
+//            -sin_yaw, cos_yaw, 0,
+//            cos_yaw * tan_pitch, sin_yaw * tan_pitch, 1;
 
-    // ang_vel_to_rpy_rate << cos_yaw, sin_yaw, 0,
-    //         -sin_yaw, cos_yaw, 0,
-    //         0, 0, 1;
+    ang_vel_to_rpy_rate << cos_yaw, sin_yaw, 0,
+            -sin_yaw, cos_yaw, 0,
+            0, 0, 1;
 
     A_mat_c.block<3, 3>(0, 6) = ang_vel_to_rpy_rate;
     A_mat_c.block<3, 3>(3, 9) = Eigen::Matrix3d::Identity();

@@ -7,13 +7,6 @@
 #include <memory>
 #include <thread>
 #include <chrono>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <cstring>
-#include <unistd.h>
-#include <sys/resource.h>
-#include <stdlib.h>
-#include <string>
 
 // ROS
 #include <ros/ros.h>
@@ -35,9 +28,9 @@ int main(int argc, char **argv) {
     }
 
     // make sure the ROS infra DO NOT use sim time, otherwise the controller cannot run with correct time steps
-    std::string use_sim_time;
+    bool use_sim_time;
     if (ros::param::get("/use_sim_time", use_sim_time)) {
-        if (use_sim_time != "false") {
+        if (use_sim_time != false) {
             std::cout << "hardware must have real time in order to use this program!" << std::endl;
             return -1;
         }
@@ -83,7 +76,7 @@ int main(int argc, char **argv) {
             // std::cout << "foot force is solved in " << dt_solver_time.toSec() << "s" << std::endl;
 
             if (!running) {
-                // std::cout << "Thread 1 loop is terminated because of errors." << std::endl;
+                std::cout << "Thread 1 loop is terminated because of errors." << std::endl;
                 ros::shutdown();
                 std::terminate();
                 break;
@@ -143,5 +136,6 @@ int main(int argc, char **argv) {
 
     compute_foot_forces_grf_thread.join();
     main_thread.join();
+
     return 0;
 }

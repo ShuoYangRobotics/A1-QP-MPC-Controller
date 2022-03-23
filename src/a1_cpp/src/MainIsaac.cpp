@@ -28,12 +28,15 @@ int main(int argc, char **argv) {
     }
 
     // make sure the ROS infra using sim time, otherwise the controller cannot run with correct time steps
-    std::string use_sim_time;
-    if (ros::param::get("/use_sim_time", use_sim_time)) {
-        if (use_sim_time != "true") {
-            std::cout << "ROS must set use_sim_time in order to use this program!" << std::endl;
+    bool use_sim_time;
+    if (nh.getParam("/use_sim_time", use_sim_time)) {
+        if (use_sim_time != true) {
+            std::cout << "ROS must set use_sim_time to be true in order to use this program!" << std::endl;
             return -1;
         }
+    } else {
+        std::cout << "ROS must set use_sim_time in order to use this program!" << std::endl;
+        return -1;
     }
 
     // create a1 controller

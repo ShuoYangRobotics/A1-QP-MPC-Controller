@@ -144,7 +144,7 @@ docker exec -it a1_unitree_gazebo_docker bash
 In the docker container, run the following command to start the gazebo environment 
 
 ```shell
-roslaunch unitree_gazebo normal.launch rname:=a1 wname:=stairs_new 
+roslaunch unitree_gazebo normal.launch rname:=a1 wname:=stairs_single 
 ```
 
 The gazebo window should be seen on the host computer. Check [the list of worlds](https://github.com/ShuoYangRobotics/unitree_ros/tree/master/unitree_gazebo/worlds) for different wname.

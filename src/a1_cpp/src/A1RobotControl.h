@@ -77,10 +77,9 @@ private:
     visualization_msgs::Marker foot_path_marker[NUM_LEG];
 
     //debug topics
-    ros::Publisher pub_root_lin_vel;
-    ros::Publisher pub_root_lin_vel_d; 
-    ros::Publisher pub_root_pos_d;
-    ros::Publisher pub_root_pos; 
+//    ros::Publisher pub_root_lin_vel;
+//    ros::Publisher pub_root_lin_vel_d;
+    ros::Publisher pub_terrain_angle;
 
     ros::Publisher pub_foot_pose_target_FL;
     ros::Publisher pub_foot_pose_target_FR;
@@ -97,14 +96,12 @@ private:
     ros::Publisher pub_foot_pose_error_RL;
     ros::Publisher pub_foot_pose_error_RR;
 
-    ros::Publisher pub_euler_error;
-    ros::Publisher pub_terrain_angle;
-
     ros::Publisher pub_euler;
 
     //MPC does not start for the first 10 ticks to prevent uninitialized NAN goes into joint_torques
     int mpc_init_counter;
 
+    bool use_sim_time;
 
     // filters
     MovingWindowFilter terrain_angle_filter;

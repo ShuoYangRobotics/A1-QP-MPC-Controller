@@ -49,17 +49,18 @@ A1RobotControl::A1RobotControl() {
     // debug linearMatrix
 //    std::cout << Eigen::MatrixXd(linearMatrix) << std::endl;
 
-    terrain_angle_filter = MovingWindowFilter(60);
+    terrain_angle_filter = MovingWindowFilter(100);
     for (int i = 0; i < NUM_LEG; ++i) {
-        recent_contact_x_filter[i] = MovingWindowFilter(10);
-        recent_contact_y_filter[i] = MovingWindowFilter(10);
-        recent_contact_z_filter[i] = MovingWindowFilter(10);
+        recent_contact_x_filter[i] = MovingWindowFilter(60);
+        recent_contact_y_filter[i] = MovingWindowFilter(60);
+        recent_contact_z_filter[i] = MovingWindowFilter(60);
     }
 }
 
 A1RobotControl::A1RobotControl(ros::NodeHandle &_nh) : A1RobotControl() {
     std::cout << "init nh" << std::endl;
     nh = _nh;
+    _nh.param("use_sim_time", use_sim_time);
     // initial debug publisher
     for (int i = 0; i < NUM_LEG; ++i) {
         std::string id = std::to_string(i);
@@ -141,40 +142,11 @@ A1RobotControl::A1RobotControl(ros::NodeHandle &_nh) : A1RobotControl() {
 
         foot_path_marker[i].lifetime = ros::Duration();
     }
-
-    // debug topics initialize
-    pub_root_lin_vel_d = nh.advertise<geometry_msgs::PointStamped>("/a1_debug/body_root_vel_d", 100);
-    pub_root_lin_vel = nh.advertise<geometry_msgs::PointStamped>("/a1_debug/body_root_vel", 100);
-    pub_root_pos_d = nh.advertise<geometry_msgs::PointStamped>("/a1_debug/body_root_pos_d", 100);
-    pub_root_pos = nh.advertise<geometry_msgs::PointStamped>("/a1_debug/body_root_pos", 100);
-
-    pub_foot_pose_target_FL = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_target_FL", 100);
-    pub_foot_pose_target_FR = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_target_FR", 100);
-    pub_foot_pose_target_RL = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_target_RL", 100);
-    pub_foot_pose_target_RR = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_target_RR", 100);
-
-    pub_foot_pose_target_rel_FL = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_target_rel_FL",
-                                                                            100);
-    pub_foot_pose_target_rel_FR = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_target_rel_FR",
-                                                                            100);
-    pub_foot_pose_target_rel_RL = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_target_rel_RL",
-                                                                            100);
-    pub_foot_pose_target_rel_RR = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_target_rel_RR",
-                                                                            100);
-
-    pub_foot_pose_error_FL = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_error_FL", 100);
-    pub_foot_pose_error_FR = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_error_FR", 100);
-    pub_foot_pose_error_RL = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_error_RL", 100);
-    pub_foot_pose_error_RR = nh.advertise<geometry_msgs::PointStamped>("a1_debug/foot_pose_error_RR", 100);
-
-    pub_euler_error = nh.advertise<geometry_msgs::PointStamped>("a1_debug/euler_error", 100);
-
     pub_terrain_angle = nh.advertise<std_msgs::Float64>("a1_debug/terrain_angle", 100);
 }
 
 void A1RobotControl::update_plan(A1CtrlStates &state, double dt) {
     state.counter += 1;
-
     if (!state.movement_mode) {
         // movement_mode == 0, standstill with all feet in contact with ground
         for (bool &plan_contact: state.plan_contacts) plan_contact = true;
@@ -309,7 +281,7 @@ void A1RobotControl::generate_swing_legs_ctrl(A1CtrlStates &state, double dt) {
         }
     }
 
-    // std::cout << "foot_pos_recent_contact z: " << state.foot_pos_recent_contact.block<1, 4>(2, 0) << std::endl;
+    std::cout << "foot_pos_recent_contact z: " << state.foot_pos_recent_contact.block<1, 4>(2, 0) << std::endl;
 
     state.foot_forces_kin = foot_forces_kin;
 }
@@ -354,10 +326,31 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
         euler_error(2) = state.root_euler_d(2) + 3.1415926 * 2 - state.root_euler(2);
     }
 
+    // adjust body height and pitch angle based on the terrain
+//    if (state.walking_surface_fit_count < 10) {
+//        state.walking_surface_height_tmp +=
+//                (state.foot_pos_recent_contact(2, 0) + state.foot_pos_recent_contact(2, 1) + state.foot_pos_recent_contact(2, 2) +
+//                 state.foot_pos_recent_contact(2, 3)) / NUM_LEG;
+//        state.walking_surface_fit_count++;
+//    } else if (state.walking_surface_fit_count == 10) {
+//        state.walking_surface_height = state.walking_surface_height_tmp / 10;
+//        state.walking_surface_fit_count = 0;
+//        state.walking_surface_height_tmp = 0;
+//    }
+//
+//    std::cout << "z desire: " << state.root_pos_d[2] << ", actual z: " << state.root_pos[2] << std::endl;
+//    std::cout << "walking surface height " << state.walking_surface_height << std::endl;
+
     Eigen::Vector3d surf_coef = compute_walking_surface(state);
     Eigen::Vector3d flat_ground_coef;
     flat_ground_coef << 0, 0, 1;
-    double terrain_angle = terrain_angle_filter.CalculateAverage(Utils::cal_dihedral_angle(flat_ground_coef, surf_coef));
+    double terrain_angle = 0;
+    // only record terrain angle when the body is high
+    if (state.root_pos[2] > 0.1) {
+        terrain_angle = terrain_angle_filter.CalculateAverage(Utils::cal_dihedral_angle(flat_ground_coef, surf_coef));
+    } else {
+        terrain_angle = 0;
+    }
 
     if (terrain_angle > 0.5) {
         terrain_angle = 0.5;
@@ -378,11 +371,10 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
 
 
     std_msgs::Float64 terrain_angle_msg;
-    std::cout << "terrain angle: " << terrain_angle << std::endl;
-    terrain_angle = 0.0;
     terrain_angle_msg.data = terrain_angle * (180 / 3.1415926);
     pub_terrain_angle.publish(terrain_angle_msg); // publish in deg
-    // std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / 3.1415926) << std::endl;
+    std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / 3.1415926) << std::endl;
+    std::cout << "terrain angle: " << terrain_angle << std::endl;
 
     // save calculated terrain pitch angle
     // TODO: limit terrain pitch angle to -30 to 30? 
@@ -448,7 +440,7 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
         std::chrono::duration<double, std::milli> ms_double_1 = t2 - t1;
         std::chrono::duration<double, std::milli> ms_double_2 = t3 - t2;
 
-        // std::cout << "qp solver init time: " << ms_double_1.count() << "ms; solve time: " << ms_double_2.count() << "ms" << std::endl;
+        std::cout << "qp solver init time: " << ms_double_1.count() << "ms; solve time: " << ms_double_2.count() << "ms" << std::endl;
 
         Eigen::VectorXd QPSolution = solver.getSolution(); //12x1
         for (int i = 0; i < NUM_LEG; ++i) {
@@ -469,11 +461,16 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
                 state.root_lin_vel[0], state.root_lin_vel[1], state.root_lin_vel[2],
                 -9.8;
 
-        // previously we use dt passed by outer thread. It turns out that this dt is not stable.
+        // previously we use dt passed by outer thread. It turns out that this dt is not stable on hardware.
         // if the thread is slowed down, dt becomes large, then MPC will output very large force and torque value
-        // which will cause over current. Here we use a new dt, this should be roughly close to the average dt
+        // which will cause over current. Here we use a new mpc_dt, this should be roughly close to the average dt
         // of thread 1 
         double mpc_dt = 0.0025;
+
+        // in simulation, use dt has no problem
+        if (use_sim_time == true) {
+            mpc_dt = dt;
+        }
 
         // initialize the desired mpc states trajectory
         state.root_lin_vel_d_world = state.root_rot_mat * state.root_lin_vel_d;
