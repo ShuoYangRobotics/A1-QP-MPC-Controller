@@ -175,7 +175,7 @@ In the docker container, continue to run the controller
 roslaunch a1_cpp a1_ctrl.launch type:=gazebo solver_type:=mpc # solver_type can be qp or mpc
 ```
 
-Now, the controller engages the robot in Gazebo. The robot has two modes: "stand" (default) and "walk". The robot still stands at the beginning.
+Now, the controller engages the robot in Gazebo. The robot has two modes: "stand" (default) and "walk". The robot still stands at the beginning. Due to the performance variation of different computers, your robot may be not very stable when standing up, you can use the two unitree_controller commands we mentioned above the adjust the robot to make it stands up.
 
 If there is a USB joystick connects to the host computer. The docker should be able to see it. And we can read its data in the docker. Open another terminal
 ```shell
@@ -184,7 +184,7 @@ rosrun joy joy_node
 ```
 
 Currently we need a Linux-supported joystick like an Xbox One Controller to drive the robot around.
-you should following the insturctions in http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick to setup a joystick controller.
+you should following the insturctions in http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick to learn how to setup a joystick controller.
 
 Take Xbox One Controller as an example:
 
