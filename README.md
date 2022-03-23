@@ -51,13 +51,14 @@ docker build -t a1_cpp_ctrl_image .
 Then we start docker by the following command
 
 ```shell
-docker run -d \
+    docker run -d \
     --network host \
-    -v PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER:/root/A1_Ctrl/ \
+    --cap-add=IPC_LOCK --cap-add=sys_nice \
+    -v PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER:/root/A1_ctrl_ws/src/A1_Ctrl \
     --privileged \
     -v /dev/bus/usb:/dev/bus/usb \
-    --name a1_cpp_ctrl_docker2 \
-    a1_cpp_ctrl_image2
+    --name a1_cpp_ctrl_docker \
+    a1_cpp_ctrl_image
 ```
 Notice the *PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER* must be changed to the location of the repo folder on your computer.
 
@@ -66,7 +67,7 @@ We set the docker container in a way that we use ssh to access the controller. O
 ```shell
 ssh root@localhost -p2233
 # then input passward "password" when prompted to do so
-cd /root/A1_Ctrl/
+cd /root/A1_ctrl_ws/
 catkin build
 ```
 
@@ -75,7 +76,7 @@ We do it in this way because during development period, we can use VSCode remote
 You can read the docker file and a tutorial at https://www.allaban.me/posts/2020/08/ros2-setup-ide-docker/ to learn more about Clion developement. (The tutorial is for ROS2 but most part of it applies to ROS1 too.) Following this article you can set CLion to compile the controller using the environment in the docker container. Additional to "Copy and paste the output into CLion’s CMake environment setting."
 also need to copy environment variables to "Run/Debug Configrations" of the executable to be tested. 
 
-With the above docker run command, inside the docker, /root/A1_Ctrl/ is a regular ROS1 workspace. Execute ''catkin build'' to build the workspace. Then the ROS package a1_cpp in A1_Ctrl is ready to use.
+With the above docker run command, inside the docker, /root/A1_ctrl_ws/ is a regular ROS1 workspace. Execute ''catkin build'' to build the workspace. Then the ROS package a1_cpp in A1_Ctrl is ready to use.
 
 ## Isaac Sim Demo
 ![Issac A1](doc/isaac_a1.png)
@@ -133,7 +134,13 @@ After you run this script once, later you can access the docker "a1_unitree_gaze
 ```shell
 docker start a1_unitree_gazebo_docker
 docker attach a1_unitree_gazebo_docker
-``` 
+```
+
+If more terminals are needed, use the following command to add more terminals
+```shell
+docker exec -it a1_unitree_gazebo_docker bash
+```
+ 
 In the docker container, run the following command to start the gazebo environment 
 
 ```shell
@@ -158,10 +165,10 @@ Run the container, build and config the A1 controller
 ```shell
 ssh root@localhost -p2233
 # then input passward "password" when prompted to do so
-cd /root/A1_Ctrl/
+cd /root/A1_ctrl_ws/
 catkin build
-source /root/A1_Ctrl/devel/setup.bash
-echo "source /root/A1_Ctrl/devel/setup.bash" >> /.bashrc
+source /root/A1_ctrl_ws/devel/setup.bash
+echo "source /root/A1_ctrl_ws/devel/setup.bash" >> /.bashrc
 ```
 In the docker container, continue to run the controller
 ```shell
@@ -200,17 +207,20 @@ Download the Dockerfile in "docker/" on the onboard computer and compile the doc
 ```shell
 git clone https://github.com/ShuoYangRobotics/A1-QP-MPC-Controller.git
 cd docker/
-sudo docker build --build-arg -t="a1_ros_ctrl_image" .
+sudo docker build -t a1_cpp_ctrl_image .
 ```
 
 Then we start docker by
 
 ```shell
-docker run -it --network host \
-                --cap-add=IPC_LOCK --cap-add=sys_nice \
-                -v {PATH_OF_THIS_REPO_ON_YOUR_HOST_COMPUTER}:/root/A1_Ctrl/ \
-                --name a1_cpp_ctrl_docker \
-                a1_ros_ctrl_image
+    docker run -d \
+    --network host \
+    --cap-add=IPC_LOCK --cap-add=sys_nice \
+    -v PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER:/root/A1_ctrl_ws/src/A1_Ctrl \
+    --privileged \
+    -v /dev/bus/usb:/dev/bus/usb \
+    --name a1_cpp_ctrl_docker \
+    a1_cpp_ctrl_image
 ```
 Then get insider the docker by 
 ```shell
@@ -222,11 +232,11 @@ ssh root@localhost -p2233
 # then input passward "password" when prompted to do so
 ```
 
-Go to folder "/root/A1_Ctrl/", then do 
+Go to folder "/root/A1_ctrl_ws/", then do 
 ```shell
 catkin build 
-source /root/A1_Ctrl/devel/setup.bash
-echo "source /root/A1_Ctrl/devel/setup.bash" >> /.bashrc
+source /root/A1_ctrl_ws/devel/setup.bash
+echo "source /root/A1_ctrl_ws/devel/setup.bash" >> /.bashrc
 ```
 
 Make sure the A1 robot is in "standby" mode, in which the robot is ready to receive joint commands. There are two ways to do this.
@@ -239,16 +249,16 @@ and stands up, press "L2+B" buttons on the A1 remote controller.
 Now the A1 robot is in standby mode, we can run controller from the docker. Inside the docker,
 we first 
 ```shell
-rosparam load /root/A1_Ctrl/src/a1_cpp/config/hardware_a1_mpc.yaml
+rosparam load /root/A1_ctrl_ws/src/A1_Ctrl/src/a1_cpp/config/hardware_a1_mpc.yaml
 ```
-Then start the controller by go to /root/A1_Ctrl/deve/lib/a1_cpp
+Then start the controller by go to /root/A1_ctrl_ws/deve/lib/a1_cpp
 ```shell
 ./hardware_a1_ctrl
 ```
 
 Or use a roslaunch file
 ```shell
-source /root/A1_Ctrl/devel/setup.bash
+source /root/A1_ctrl_ws/devel/setup.bash
 roslaunch a1_cpp a1_ctrl.launch type:=hardware solver_type:=mpc
 # notice the type is different from the Gazebo or Isaac simulation; solver_type can be qp or mpc
 ```

@@ -10,7 +10,7 @@ A1RobotControl::A1RobotControl() {
     // init some parameters
     Q.diagonal() << 1.0, 1.0, 1.0, 400.0, 400.0, 100.0;
     R = 1e-3;
-    mu = 0.2;
+    mu = 0.7;
     F_min = 0;
     F_max = 180;
     hessian.resize(3 * NUM_LEG, 3 * NUM_LEG);
@@ -49,11 +49,11 @@ A1RobotControl::A1RobotControl() {
     // debug linearMatrix
 //    std::cout << Eigen::MatrixXd(linearMatrix) << std::endl;
 
-    terrain_angle_filter = MovingWindowFilter(100);
+    terrain_angle_filter = MovingWindowFilter(60);
     for (int i = 0; i < NUM_LEG; ++i) {
-        recent_contact_x_filter[i] = MovingWindowFilter(50);
-        recent_contact_y_filter[i] = MovingWindowFilter(50);
-        recent_contact_z_filter[i] = MovingWindowFilter(50);
+        recent_contact_x_filter[i] = MovingWindowFilter(10);
+        recent_contact_y_filter[i] = MovingWindowFilter(10);
+        recent_contact_z_filter[i] = MovingWindowFilter(10);
     }
 }
 
@@ -258,28 +258,6 @@ void A1RobotControl::generate_swing_legs_ctrl(A1CtrlStates &state, double dt) {
             // in this case the foot should be stance
             // keep refreshing foot_pos_start in stance mode
             state.foot_pos_start.block<3, 1>(0, i) = foot_pos_cur.block<3, 1>(0, i);
-                    // debug ROS topic for stance leg
-            if (state.counter) {
-                Eigen::Vector3d start_pos = state.foot_pos_abs.block<3,1>(0,i) + state.root_pos;
-                Eigen::Vector3d end_pos = state.foot_pos_abs.block<3,1>(0,i) + state.root_pos;
-                foot_start_marker[i].pose.position.x = start_pos(0);
-                foot_start_marker[i].pose.position.y = start_pos(1);
-                foot_start_marker[i].pose.position.z = start_pos(2);
-                foot_end_marker[i].pose.position.x = end_pos(0);
-                foot_end_marker[i].pose.position.y = end_pos(1);
-                foot_end_marker[i].pose.position.z = end_pos(2);
-
-                // path
-                for (int k = 0;k<10;k++) {
-                    foot_path_marker[i].points[k].x = start_pos(0);
-                    foot_path_marker[i].points[k].y = start_pos(1);
-                    foot_path_marker[i].points[k].z = start_pos(2);
-                }
-                pub_foot_start[i].publish(foot_start_marker[i]);
-                pub_foot_end[i].publish(foot_end_marker[i]);
-                pub_foot_path[i].publish(foot_path_marker[i]);
-            }
-        
         } else {
             // in this case the foot should be swing
             spline_time(i) = float(state.gait_counter(i) - state.counter_per_swing) / float(state.counter_per_swing);
@@ -302,34 +280,7 @@ void A1RobotControl::generate_swing_legs_ctrl(A1CtrlStates &state, double dt) {
                                             foot_vel_error.block<3, 1>(0, i).cwiseProduct(state.kd_foot.block<3, 1>(0, i));
     }
     state.foot_pos_cur = foot_pos_cur;
-    // debug publish
-    geometry_msgs::PointStamped msg_1;
-    geometry_msgs::PointStamped msg_2;
-    msg_1.header.stamp = ros::Time::now();
-    msg_2.header.stamp = ros::Time::now();
-    for (int i = 0; i < NUM_LEG; ++i) {
-        msg_1.point.x = foot_pos_target(0, i);
-        msg_1.point.y = foot_pos_target(1, i);
-        msg_1.point.z = foot_pos_target(2, i);
-        msg_2.point.x = foot_pos_error(0, i);
-        msg_2.point.y = foot_pos_error(1, i);
-        msg_2.point.z = foot_pos_error(2, i);
-        if (state.plan_contacts[i] == 1) {
-            if (i == 0) {
-                pub_foot_pose_target_FL.publish(msg_1);
-                pub_foot_pose_error_FL.publish(msg_2);
-            } else if (i == 1) {
-                pub_foot_pose_target_FR.publish(msg_1);
-                pub_foot_pose_error_FR.publish(msg_2);
-            } else if (i == 2) {
-                pub_foot_pose_target_RL.publish(msg_1);
-                pub_foot_pose_error_RL.publish(msg_2);
-            } else {
-                pub_foot_pose_target_RR.publish(msg_1);
-                pub_foot_pose_error_RR.publish(msg_2);
-            }            
-        }
-    } 
+
     // detect early contact
     bool last_contacts[NUM_LEG];
 
@@ -395,11 +346,7 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
     // first get parameters needed to construct the solver hessian and gradient
     // use euler angle to get desired angle
     Eigen::Vector3d euler_error = state.root_euler_d - state.root_euler;
-    geometry_msgs::PointStamped euler_error_msg;
-    euler_error_msg.point.x = euler_error(0);
-    euler_error_msg.point.y = euler_error(1);
-    euler_error_msg.point.z = euler_error(2);
-    pub_euler_error.publish(euler_error_msg);
+
     // limit euler error to pi/2
     if (euler_error(2) > 3.1415926 * 1.5) {
         euler_error(2) = state.root_euler_d(2) - 3.1415926 * 2 - state.root_euler(2);
@@ -410,8 +357,7 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
     Eigen::Vector3d surf_coef = compute_walking_surface(state);
     Eigen::Vector3d flat_ground_coef;
     flat_ground_coef << 0, 0, 1;
-    double terrain_angle = 0;
-    terrain_angle = terrain_angle_filter.CalculateAverage(Utils::cal_dihedral_angle(flat_ground_coef, surf_coef));
+    double terrain_angle = terrain_angle_filter.CalculateAverage(Utils::cal_dihedral_angle(flat_ground_coef, surf_coef));
 
     if (terrain_angle > 0.5) {
         terrain_angle = 0.5;
@@ -432,10 +378,11 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
 
 
     std_msgs::Float64 terrain_angle_msg;
+    std::cout << "terrain angle: " << terrain_angle << std::endl;
+    terrain_angle = 0.0;
     terrain_angle_msg.data = terrain_angle * (180 / 3.1415926);
     pub_terrain_angle.publish(terrain_angle_msg); // publish in deg
-    std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / 3.1415926) << std::endl;
-    std::cout << "terrain angle: " << terrain_angle << std::endl;
+    // std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / 3.1415926) << std::endl;
 
     // save calculated terrain pitch angle
     // TODO: limit terrain pitch angle to -30 to 30? 

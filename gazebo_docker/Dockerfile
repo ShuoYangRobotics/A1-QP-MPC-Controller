@@ -89,6 +89,7 @@ RUN   if [ "x$(nproc)" = "x1" ] ; then export USE_PROC=1 ; \
       apt-get update && apt-get install -y \
       ros-${ROS_DISTRO}-ros-control \
       ros-${ROS_DISTRO}-gazebo-ros \
+      ros-${ROS_DISTRO}-joy \
       ros-${ROS_DISTRO}-ros-controllers \
       ros-${ROS_DISTRO}-robot-state-publisher
 
