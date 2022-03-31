@@ -37,21 +37,21 @@ a1_gait_counter_speed_RR: 2.0
 
 # MPC parameters
 
-q_weights_0: 200.0 # roll
-q_weights_1: 200.0 # pitch
-q_weights_2: 1.0 # yaw
+q_weights_0: 8000.0 # roll
+q_weights_1: 4000.0 # pitch
+q_weights_2: 3000.0 # yaw
 
 q_weights_3: 0.0 # pos x
 q_weights_4: 0.0 # pos y
-q_weights_5: 420.0 # pos z
+q_weights_5: 6020.0 # pos z
 
 q_weights_6: 20.05 # omega x
 q_weights_7: 30.05 # omega y
 q_weights_8: 0.05 # omega z
 
-q_weights_9: 130.0 # vel x
-q_weights_10: 130.0 # vel y
-q_weights_11: 10.0 # vel z
+q_weights_9: 2130.0 # vel x
+q_weights_10: 2130.0 # vel y
+q_weights_11: 110.0 # vel z
 
 q_weights_12: 0.0
 
@@ -74,13 +74,13 @@ r_weights_11: 1e-6
 # foot swing controller parameters
 # force_tgt = km_foot * kp_foot * foot_pos_error
 
-a1_kp_foot_x: 3000.0
-a1_kp_foot_y: 3000.0
-a1_kp_foot_z: 2050.0
+a1_kp_foot_x: 4250.0
+a1_kp_foot_y: 4250.0
+a1_kp_foot_z: 3000.0
 
-a1_kd_foot_x: 0.2
-a1_kd_foot_y: 0.2
-a1_kd_foot_z: 0.1
+a1_kd_foot_x: 0.0
+a1_kd_foot_y: 0.0
+a1_kd_foot_z: 0.0
 
 a1_km_foot_x: 0.5
 a1_km_foot_y: 0.5

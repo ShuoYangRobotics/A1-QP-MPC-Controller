@@ -31,9 +31,9 @@ a1_gait_counter_speed_RR: 2.0
 # foot swing controller parameters
 # force_tgt = km_foot * kp_foot * foot_pos_error
 
-a1_kp_foot_x: 1250.0
-a1_kp_foot_y: 1250.0
-a1_kp_foot_z: 2000.0
+a1_kp_foot_x: 4250.0
+a1_kp_foot_y: 4250.0
+a1_kp_foot_z: 3000.0
 
 a1_kd_foot_x: 0.0
 a1_kd_foot_y: 0.0
@@ -55,14 +55,14 @@ a1_kp_linear_x: 1450.0
 a1_kp_linear_y: 1450.0
 a1_kp_linear_z: 3800.0
 
-a1_kd_linear_x: 600.0
-a1_kd_linear_y: 600.0
+a1_kd_linear_x: 2600.0
+a1_kd_linear_y: 2600.0
 a1_kd_linear_z: 0.0
 
-a1_kp_angular_x: 2420.0
-a1_kp_angular_y: 2420.0
+a1_kp_angular_x: 420.0
+a1_kp_angular_y: 420.0
 a1_kp_angular_z: 150.0
 
 a1_kd_angular_x: 0.0
 a1_kd_angular_y: 0.0
-a1_kd_angular_z: 160.0
+a1_kd_angular_z: 560.0
