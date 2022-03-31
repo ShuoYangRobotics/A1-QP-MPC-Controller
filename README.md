@@ -55,12 +55,11 @@ Then we start docker by the following command
     --network host \
     --cap-add=IPC_LOCK --cap-add=sys_nice \
     -v PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER:/root/A1_ctrl_ws/src/A1_Ctrl \
-    --privileged \
-    -v /dev/bus/usb:/dev/bus/usb \
+    --device /dev/input
     --name a1_cpp_ctrl_docker \
     a1_cpp_ctrl_image
 ```
-Notice the *PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER* must be changed to the location of the repo folder on your computer.
+Notice the *PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER* must be changed to the location of the repo folder on your computer. The argument **--device /dev/input** intends to map usb ports into the docker container so you can attach joystick to the host computer and use ROS joy_node to recieve joystick command. 
 
 We set the docker container in a way that we use ssh to access the controller. Once the docker container starts, use 
 
@@ -101,6 +100,10 @@ Now we need to be careful about the graphics card of the host computer. If the h
 
 Assuming an Nvidia graphics card is used, and Nvidia driver is properly installed. First follow [this link](https://nvidia.github.io/nvidia-docker/) to add nvidia-docker repo to your host computer, then install the nvidia-docker2 follows [the instruction](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker).
 
+Then on host computer, type
+```shell
+xhost + 
+```
 Then we create a script to run the image called run_gazebo_docker.bash
 
 ```shell

@@ -1,14 +1,14 @@
 # we build this docker based on a docker with ros already installed
 FROM osrf/ros:melodic-desktop-full
 
+LABEL maintainer="shuoyang@andrew.cmu.edu"
+ENV REFRESH_AT 2022-03-22
+
 # nvidia-container-runtime
 ENV NVIDIA_VISIBLE_DEVICES \
     ${NVIDIA_VISIBLE_DEVICES:-all}
 ENV NVIDIA_DRIVER_CAPABILITIES \
     ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
-
-LABEL maintainer="shuoyang@andrew.cmu.edu"
-ENV REFRESH_AT 2022-03-20
 
 # install necessary dependencies 
 RUN   if [ "x$(nproc)" = "x1" ] ; then export USE_PROC=1 ; \
