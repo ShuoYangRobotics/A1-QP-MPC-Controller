@@ -309,7 +309,12 @@ void A1RobotControl::compute_joint_torques(A1CtrlStates &state) {
         }
         // gravity compensation
         joint_torques += state.torques_gravity;
-        state.joint_torques = joint_torques;
+
+        // prevent nan
+        for (int i = 0; i < 12; ++i) {
+            if (!isnan(joint_torques[i]))
+                state.joint_torques[i] = joint_torques[i];
+        }
     }
 }
 
@@ -326,60 +331,47 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
         euler_error(2) = state.root_euler_d(2) + 3.1415926 * 2 - state.root_euler(2);
     }
 
-    // adjust body height and pitch angle based on the terrain
-//    if (state.walking_surface_fit_count < 10) {
-//        state.walking_surface_height_tmp +=
-//                (state.foot_pos_recent_contact(2, 0) + state.foot_pos_recent_contact(2, 1) + state.foot_pos_recent_contact(2, 2) +
-//                 state.foot_pos_recent_contact(2, 3)) / NUM_LEG;
-//        state.walking_surface_fit_count++;
-//    } else if (state.walking_surface_fit_count == 10) {
-//        state.walking_surface_height = state.walking_surface_height_tmp / 10;
-//        state.walking_surface_fit_count = 0;
-//        state.walking_surface_height_tmp = 0;
-//    }
-//
-//    std::cout << "z desire: " << state.root_pos_d[2] << ", actual z: " << state.root_pos[2] << std::endl;
-//    std::cout << "walking surface height " << state.walking_surface_height << std::endl;
+    // only do terrain adaptation in MPC
+    if (state.stance_leg_control_type == 1) {
+        Eigen::Vector3d surf_coef = compute_walking_surface(state);
+        Eigen::Vector3d flat_ground_coef;
+        flat_ground_coef << 0, 0, 1;
+        double terrain_angle = 0;
+        // only record terrain angle when the body is high
+        if (state.root_pos[2] > 0.1) {
+            terrain_angle = terrain_angle_filter.CalculateAverage(Utils::cal_dihedral_angle(flat_ground_coef, surf_coef));
+        } else {
+            terrain_angle = 0;
+        }
 
-    Eigen::Vector3d surf_coef = compute_walking_surface(state);
-    Eigen::Vector3d flat_ground_coef;
-    flat_ground_coef << 0, 0, 1;
-    double terrain_angle = 0;
-    // only record terrain angle when the body is high
-    if (state.root_pos[2] > 0.1) {
-        terrain_angle = terrain_angle_filter.CalculateAverage(Utils::cal_dihedral_angle(flat_ground_coef, surf_coef));
-    } else {
-        terrain_angle = 0;
+        if (terrain_angle > 0.5) {
+            terrain_angle = 0.5;
+        }
+        if (terrain_angle < -0.5) {
+            terrain_angle = -0.5;
+        }
+
+        // FL, FR, RL, RR
+        double F_R_diff = state.foot_pos_recent_contact(2, 0) + state.foot_pos_recent_contact(2, 1) - state.foot_pos_recent_contact(2, 2) -
+                        state.foot_pos_recent_contact(2, 3);
+
+        if (F_R_diff > 0.05) {
+        state.root_euler_d[1] = -terrain_angle;
+        } else {
+        state.root_euler_d[1] = terrain_angle;
+        }
+
+
+        std_msgs::Float64 terrain_angle_msg;
+        terrain_angle_msg.data = terrain_angle * (180 / 3.1415926);
+        pub_terrain_angle.publish(terrain_angle_msg); // publish in deg
+        std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / 3.1415926) << std::endl;
+        std::cout << "terrain angle: " << terrain_angle << std::endl;
+
+        // save calculated terrain pitch angle
+        // TODO: limit terrain pitch angle to -30 to 30? 
+        state.terrain_pitch_angle = terrain_angle;
     }
-
-    if (terrain_angle > 0.5) {
-        terrain_angle = 0.5;
-    }
-    if (terrain_angle < -0.5) {
-        terrain_angle = -0.5;
-    }
-
-    // FL, FR, RL, RR
-    double F_R_diff = state.foot_pos_recent_contact(2, 0) + state.foot_pos_recent_contact(2, 1) - state.foot_pos_recent_contact(2, 2) -
-                      state.foot_pos_recent_contact(2, 3);
-
-    if (F_R_diff > 0.05) {
-       state.root_euler_d[1] = -terrain_angle;
-    } else {
-       state.root_euler_d[1] = terrain_angle;
-    }
-
-
-    std_msgs::Float64 terrain_angle_msg;
-    terrain_angle_msg.data = terrain_angle * (180 / 3.1415926);
-    pub_terrain_angle.publish(terrain_angle_msg); // publish in deg
-    std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / 3.1415926) << std::endl;
-    std::cout << "terrain angle: " << terrain_angle << std::endl;
-
-    // save calculated terrain pitch angle
-    // TODO: limit terrain pitch angle to -30 to 30? 
-    state.terrain_pitch_angle = terrain_angle;
-
     if (state.stance_leg_control_type == 0) { // 0: QP
         // desired acc in world frame
         root_acc.setZero();

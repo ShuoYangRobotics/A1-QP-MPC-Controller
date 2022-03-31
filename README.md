@@ -178,9 +178,11 @@ In the docker container, continue to run the controller
 roslaunch a1_cpp a1_ctrl.launch type:=gazebo solver_type:=mpc # solver_type can be qp or mpc
 ```
 
-Now, the controller engages the robot in Gazebo. The robot has two modes: "stand" (default) and "walk". The robot still stands at the beginning. Due to the performance variation of different computers, your robot may be not very stable when standing up, you can use the two unitree_controller commands we mentioned above the adjust the robot to make it stands up.
+Now, the controller engages the robot in Gazebo. The robot has two modes: "stand" (default) and "walk". The robot still stands at the beginning. If using QP controller, your robot may be not very stable when standing up, you can use the two unitree_controller commands we mentioned above the adjust the robot to make it stands up first. The Convex MPC controller is more stable. 
 
-If there is a USB joystick connects to the host computer. The docker should be able to see it. And we can read its data in the docker. Open another terminal
+Different computers have different performance. If the robot is very unstable, chances are the simulation parameters of the Gazebo needs to be tuned (unitree_ros/unitree_gazebo/worlds). See [Gazebo tutorial](https://gazebosim.org/tutorials?tut=physics_params&cat=physics) for more information.
+
+If there is a USB joystick connects to the host computer. The docker should be able to see it (because when we run the docker container, we use **--device /dev/input** to map USB input devices into the docker). So we can read its data in the docker. Open another terminal
 ```shell
 ssh root@localhost -p2233
 rosrun joy joy_node

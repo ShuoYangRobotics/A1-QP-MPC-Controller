@@ -51,16 +51,16 @@ a1_km_foot_z: 0.1
 #                        + kd_linear (rotation velocity error)
 # root_acc are used to compute ground contact force
 
-a1_kp_linear_x: 1000.0
-a1_kp_linear_y: 1000.0
-a1_kp_linear_z: 1000.0
+a1_kp_linear_x: 100.0
+a1_kp_linear_y: 100.0
+a1_kp_linear_z: 300.0
 
-a1_kd_linear_x: 200.0
+a1_kd_linear_x: 70.0
 a1_kd_linear_y: 70.0
 a1_kd_linear_z: 120.0
 
-a1_kp_angular_x: 650.0
-a1_kp_angular_y: 35.0
+a1_kp_angular_x: 150.0
+a1_kp_angular_y: 150.0
 a1_kp_angular_z: 1.0
 
 a1_kd_angular_x: 4.5
