@@ -15,7 +15,7 @@ The features of this controller includes
 
     - real time QP force controller [1] based on OSQP
     - real time convex MPC controller [2] based on OSQP
-    - Stair climbing demonstration (on tested in Gazebo)
+    - Stair climbing demonstration (only tested in Gazebo)
     - Docker based installation
     - Intergrated ROS1 ecosystem
 
@@ -38,17 +38,17 @@ For more details about the controller principle please refer to
 
 ## Installation
 
-We use ROS1 as communication backbone. We assume you already have ROS1 installed on your computer. We recommend that the controller being installed in a Docker container. Therefore on different computers (desktop for simuation, onboard computer for hardware control), the controller can run in a common environment. 
+We assume you already have [Docker](https://www.youtube.com/watch?v=3c-iBn73dDE) installed on your computer because we recommend that the controller being installed in a Docker container. Therefore, on different computers (desktop for simuation, onboard computer for hardware control), the controller can run in a common environment. 
 
-The software only tested in **Ubuntu 18.04** and **ROS melodic**. 
+The software is tested in **Ubuntu 18.04** and **Ubuntu 20.04**. 
 
-First, get the dockerfile in the "docker/" folder. Build the docker using command
+First, open a terminal and go to the "docker/" folder. Build the docker using command
 
 ```shell
 docker build -t a1_cpp_ctrl_image .
 ```
 
-Then we start docker by the following command
+Then we start docker by the following command (you may add sudo depending on your docker permission setting.)
 
 ```shell
     docker run -d \
@@ -59,7 +59,7 @@ Then we start docker by the following command
     --name a1_cpp_ctrl_docker \
     a1_cpp_ctrl_image
 ```
-Notice the *PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER* must be changed to the location of the repo folder on your computer. The argument **--device /dev/input** intends to map usb ports into the docker container so you can attach joystick to the host computer and use ROS joy_node to recieve joystick command. 
+Notice the *PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER* must be changed to the location of the repo folder on your computer. The argument **--device /dev/input** intends to [map USB ports into the docker container](https://marc.merlins.org/perso/linux/post_2018-12-20_Accessing-USB-Devices-In-Docker-_ttyUSB0_-dev-bus-usb-_-for-fastboot_-adb_-without-using-privileged.html) so you can attach joystick to the host computer and use ROS joy_node to receive joystick command. 
 
 We set the docker container in a way that we use ssh to access the controller. Once the docker container starts, use 
 
@@ -70,24 +70,19 @@ cd /root/A1_ctrl_ws/
 catkin build
 ```
 
-We do it in this way because during development period, we can use VSCode remote or Clion to debug the program.
+We do it in this way because during development period, we can use VSCode remote or Clion to debug the program. You can read the Dockerfile about how to change default username, password and ssh port. 
 
-You can read the docker file and a tutorial at https://www.allaban.me/posts/2020/08/ros2-setup-ide-docker/ to learn more about Clion developement. (The tutorial is for ROS2 but most part of it applies to ROS1 too.) Following this article you can set CLion to compile the controller using the environment in the docker container. Additional to "Copy and paste the output into CLion’s CMake environment setting."
+We recommend VSCode remote but Clion is also handy to use. You can read the docker file and a tutorial at https://www.allaban.me/posts/2020/08/ros2-setup-ide-docker/ to learn more about Clion development. (The tutorial is for ROS2 but most part of it applies to ROS1 too.) Following this article you can set CLion to compile the controller using the environment in the docker container. Additional to "Copy and paste the output into CLion’s CMake environment setting."
 also need to copy environment variables to "Run/Debug Configrations" of the executable to be tested. 
 
-With the above docker run command, inside the docker, /root/A1_ctrl_ws/ is a regular ROS1 workspace. Execute ''catkin build'' to build the workspace. Then the ROS package a1_cpp in A1_Ctrl is ready to use.
-
-## Isaac Sim Demo
-![Issac A1](doc/isaac_a1.png)
-
-We can use this controller to control an A1 robot in Nvidia Isaac Sim. This functionality is still under development. It will work with the next Isaac Sim release.
+With the above docker container configuration, inside the docker, /root/A1_ctrl_ws/ is a regular ROS1 workspace. Execute ''catkin build'' to build the workspace. Then the ROS package a1_cpp in A1_ctrl_ws is ready to use.
 
 ## Gazebo Demo
 ![Gazebo A1](doc/gazebo_a1.png)
 
-The Gazebo demo relies on the gazebo simulator environment developed by Unitree Robotics. However, the official environment is updated to support Unitree's new robots. So we provide a custom docker environment to make sure the version of unitree_legged_sdk be v3.2.  
+We provide a docker environment to make sure you can install the Gazebo simulator on any Linux machine (with Nvidia graphics card if possible). We will only talk about how to setup in this way. 
 
-Also, notice ROS melodic supports up to Gazebo 9 so please use Gazebo version < 9.
+If you want to use your existing ROS environment or want to install on the host computer directly, notice the Gazebo demo relies on the gazebo simulator environment developed by Unitree Robotics. However, the official environment is updated to support Unitree's new robots. So the version of unitree_legged_sdk should be manually changed to v3.2. Also, notice ROS melodic supports up to Gazebo 9, so please use Gazebo version < 9.
 
 ### Setup
 On the host computer, build a second docker in "gazebo_docker" folder
@@ -178,7 +173,7 @@ In the docker container, continue to run the controller
 roslaunch a1_cpp a1_ctrl.launch type:=gazebo solver_type:=mpc # solver_type can be qp or mpc
 ```
 
-Now, the controller engages the robot in Gazebo. The robot has two modes: "stand" (default) and "walk". The robot still stands at the beginning. If using QP controller, your robot may be not very stable when standing up, you can use the two unitree_controller commands we mentioned above the adjust the robot to make it stands up first. The Convex MPC controller is more stable. 
+Now, the controller engages the robot in Gazebo. The robot has two modes: "stand" (default) and "walk". The robot still stands at the beginning. If using QP controller, your robot may be not very stable when standing up, you can use the two unitree_controller commands we mentioned above to adjust the robot to make it stands up first. The Convex MPC controller is more stable. 
 
 Different computers have different performance. If the robot is very unstable, chances are the simulation parameters of the Gazebo needs to be tuned (unitree_ros/unitree_gazebo/worlds). See [Gazebo tutorial](https://gazebosim.org/tutorials?tut=physics_params&cat=physics) for more information.
 
@@ -188,14 +183,14 @@ ssh root@localhost -p2233
 rosrun joy joy_node
 ```
 
-Currently we need a Linux-supported joystick like an Xbox One Controller to drive the robot around.
-you should following the insturctions in http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick to learn how to setup a joystick controller.
+Currently, we need a Linux-supported joystick like an Xbox One Controller to drive the robot around.
+You should follow the instructions in http://wiki.ros.org/joy/Tutorials/ConfiguringALinuxJoystick to learn how to setup a joystick controller.
 
 Take Xbox One Controller as an example:
 
 | Button | Function |
 | :----- | :------- |
-| Left Joystick | Control the torso's orientation |
+| Left Joystick | Control the robot's yaw orientation |
 | Right Joystick | Control the robot's walking direction |
 | `A`| Switch the mode between "stand" and "walk" |
 
@@ -203,12 +198,12 @@ Take Xbox One Controller as an example:
 ![Hardware A1](doc/hardware_a1.png)
 
 We install an Intel NUC i7 computer on the A1 robot. We assume this computer connects to the robot LAN network already.
-When the robot has power, the onboard computer should has IP 192.168.123.X.
+When the robot has power, the onboard computer should have IP address 192.168.123.X.
 
 **Again, be very careful about the unitree_legged_sdk version, it must use v3.2 or v3.3.1.** The official repo of Unitree SDK is updated to support Unitree's new robots. So A1 users must manually check out v3.3.1 branch:
-https://github.com/unitreerobotics/unitree_legged_sdk/releases/tag/v3.3.1. Our docker should already handled this but just be careful. 
+https://github.com/unitreerobotics/unitree_legged_sdk/releases/tag/v3.3.1. Our docker should already handle this but just be careful. 
 
-Download the Dockerfile in "docker/" on the onboard computer and compile the docker from a directory called "PATH_OF_THIS_REPO_ON_YOUR_HOST_COMPUTER":
+Download the Dockerfile in "docker/" on the onboard computer and compile the docker
 ```shell
 git clone https://github.com/ShuoYangRobotics/A1-QP-MPC-Controller.git
 cd docker/
@@ -247,31 +242,26 @@ echo "source /root/A1_ctrl_ws/devel/setup.bash" >> /.bashrc
 Make sure the A1 robot is in "standby" mode, in which the robot is ready to receive joint commands. There are two ways to do this.
 The first approach is very hacky (but also handy): When A1 robot's battery turns on, 
 the robot will first do an initialization sequence and then run its built-in controller.
-If now the onboard computer sends a command with all 0, the built-in controller will be 
-interrupted and the robot enters standby mode. The second approach is after the robot starts 
+If now the onboard computer sends a command with all 0 (or you directly run our controller and stop is after a while), the built-in controller will be 
+interrupted, and the robot enters standby mode. The second approach is after the robot starts 
 and stands up, press "L2+B" buttons on the A1 remote controller. 
 
-Now the A1 robot is in standby mode, we can run controller from the docker. Inside the docker,
-we first 
-```shell
-rosparam load /root/A1_ctrl_ws/src/A1_Ctrl/src/a1_cpp/config/hardware_a1_mpc.yaml
-```
-Then start the controller by go to /root/A1_ctrl_ws/deve/lib/a1_cpp
-```shell
-./hardware_a1_ctrl
-```
-
-Or use a roslaunch file
+Now the A1 robot is in standby mode, we can run controller from the docker. Inside the docker, use a roslaunch file to start the controller 
 ```shell
 source /root/A1_ctrl_ws/devel/setup.bash
 roslaunch a1_cpp a1_ctrl.launch type:=hardware solver_type:=mpc
-# notice the type is different from the Gazebo or Isaac simulation; solver_type can be qp or mpc
+# notice the type is different from the Gazebo or Isaac simulation; solver_type can be qp or mpc, we recommand mpc
 ```
 
 The robot should stand up now using our controller. If now there is a joy command in the
 ROS environment (come from either an XBox joystick attaches to the robot or from
 another device in the network), the robot can respond to the joy command the same way
 as that in the Gazebo demo. 
+
+## Isaac Sim Demo
+![Issac A1](doc/isaac_a1.png)
+
+We can use this controller to control an A1 robot in Nvidia Isaac Sim. This functionality is still under development. It will work with the next Isaac Sim release.
 
 ## Acknowledgement
 We referenced the controller architecture written by Dr. Xinye Da, General Manager of PX Robotics. 
