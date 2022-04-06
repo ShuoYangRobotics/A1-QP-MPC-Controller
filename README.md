@@ -1,21 +1,23 @@
 # A1-QP-MPC-Controller
 ## Introduction
 
-This repo provides a quadruped controller that controls Unitree A1 robot, one of the most popular quadruped robots used in academic research in recent years. This controller 
+This repo provides a quadruped control stack that controls the Unitree A1 robot, one of the most popular quadruped robots used in academic research in recent years. This control stack implements two famous model base control methods [1][2]. Additionally, we use Docker and ROS1 to make it easy to install and develop.
 
-To facilitate quadruped research and application development, we provides interfaces to use this controller to control either simulated robots or real robots. We support following types of robots
+To facilitate quadruped research and application development, we provide interfaces to use this controller to control either simulated robots or real robots. We support following types of robots
 
-    1. A1 Robot simulated in Nvidia Isaac Sim Simulator
-    2. A1 Robot simulated in Gazebo Simulator
-    3. The A1 Robot hardware
+    1. A1 Robot simulated in Gazebo Simulator
+    2. A1 Robot hardware
+    3. A1 Robot simulated in Nvidia Isaac Sim Simulator 
 
-Even if you do not have a A1 robot hardware, our simulation demo can let you do research in either the Gazebo simulator or the Nvidia Isaac Sim simulator. 
+Even if you do not have a A1 robot hardware, our simulation setup can let you do research in either the Gazebo simulator or the Nvidia Isaac Sim simulator. Various efforts have been done to reduce the sim2real gap in this work. 
 
-The features of this controller includes
+The features of this controller include
 
-    - real time QP force controller [1] based on OSQP
-    - real time convex MPC controller [2] based on OSQP
-    - Stair climbing demonstration (only tested in Gazebo)
+    - real time QP force controller [1] (500Hz)
+    - real time convex MPC controller [2] (400Hz)
+    - Proprioceptive sensor state estimation [1]
+    - Terrain adaption (up to 30 degree)
+    - 9cm staircase climbing (only tested in Gazebo, hardware test ongoing)
     - Docker based installation
     - Intergrated ROS1 ecosystem
 
@@ -25,7 +27,7 @@ The features of this controller includes
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/wiJ8pOM8Wj4/0.jpg)](https://www.youtube.com/watch?v=wiJ8pOM8Wj4)
 
-The controller software is architected in a way aiming to provide easy intergration with other existing ROS packages 
+The controller software is architected in a way aiming to provide multi-platform support and easy integration with other existing ROS packages 
 contain SLAM, mapping and motion planning algorithms. 
 
 ![System](doc/sys.png)
@@ -36,9 +38,9 @@ For more details about the controller principle please refer to
 
 [2] Di Carlo, Jared, et al. "Dynamic locomotion in the mit cheetah 3 through convex model-predictive control." 2018 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS). IEEE, 2018.
 
-## Installation
+## Controller Installation
 
-We assume you already have [Docker](https://www.youtube.com/watch?v=3c-iBn73dDE) installed on your computer because we recommend that the controller being installed in a Docker container. Therefore, on different computers (desktop for simuation, onboard computer for hardware control), the controller can run in a common environment. 
+We assume you already have [Docker](https://www.youtube.com/watch?v=3c-iBn73dDE) installed on your computer because we recommend that the controller being installed in a Docker container, so on different computers (desktop for simuation, onboard computer for hardware control), the controller can run in a common environment. 
 
 The software is tested in **Ubuntu 18.04** and **Ubuntu 20.04**. 
 
@@ -80,7 +82,7 @@ With the above docker container configuration, inside the docker, /root/A1_ctrl_
 ## Gazebo Demo
 ![Gazebo A1](doc/gazebo_a1.png)
 
-We provide a docker environment to make sure you can install the Gazebo simulator on any Linux machine (with Nvidia graphics card if possible). We will only talk about how to setup in this way. 
+We provide a second Dockerfile to make sure you can install the Gazebo simulator on any Linux machine (with Nvidia graphics card if possible). We will only talk about how to setup for machine with Nvidia graphics card. 
 
 If you want to use your existing ROS environment or want to install on the host computer directly, notice the Gazebo demo relies on the gazebo simulator environment developed by Unitree Robotics. However, the official environment is updated to support Unitree's new robots. So the version of unitree_legged_sdk should be manually changed to v3.2. Also, notice ROS melodic supports up to Gazebo 9, so please use Gazebo version < 9.
 
@@ -91,7 +93,7 @@ On the host computer, build a second docker in "gazebo_docker" folder
 docker build -t a1_unitree_gazebo_image .
 ```
 
-Now we need to be careful about the graphics card of the host computer. If the host computer uses Nvidia graphics card. Then we need to install nvidia-docker2. Read [this link](http://wiki.ros.org/action/login/docker/Tutorials/Hardware%20Acceleration) for more information. 
+Now we need to be careful about the graphics card of the host computer. If the host computer uses Nvidia graphics card. Then we need to install nvidia-docker2. Read [this link](http://wiki.ros.org/action/login/docker/Tutorials/Hardware%20Acceleration) for more information if other hardware is used. 
 
 Assuming an Nvidia graphics card is used, and Nvidia driver is properly installed. First follow [this link](https://nvidia.github.io/nvidia-docker/) to add nvidia-docker repo to your host computer, then install the nvidia-docker2 follows [the instruction](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker).
 
@@ -263,7 +265,10 @@ as that in the Gazebo demo.
 
 We can use this controller to control an A1 robot in Nvidia Isaac Sim. This functionality is still under development. It will work with the next Isaac Sim release.
 
+## Troubleshooting
+Please create issues for any installation problem. 
+
 ## Acknowledgement
 We referenced the controller architecture written by Dr. Xinye Da, General Manager of PX Robotics. 
 
-Zixin Zhang implemented a part of the convex MPC controller. 
+Zixin Zhang implemented a part of the convex MPC controller and the terrain adaption feature.  
