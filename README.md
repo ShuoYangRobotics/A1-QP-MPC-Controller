@@ -80,12 +80,12 @@ With the above docker run command, inside the docker, /root/A1_ctrl_ws/ is a reg
 ## Isaac Sim Demo
 ![Issac A1](doc/isaac_a1.png)
 
-We can use this controller to control an A1 robot in Nvidia Isaac Sim. This functionality is still under development waiting for the April 2022 Isaac Sim release.
+We can use this controller to control an A1 robot in Nvidia Isaac Sim. This functionality is still under development. It will work with the next Isaac Sim release.
 
 ## Gazebo Demo
 ![Gazebo A1](doc/gazebo_a1.png)
 
-The Gazebo demo relies on the gazebo simulator environment developed by Unitree Robotics. However, the official environment is updated to support Unitree's new robots. So we provide a custom environment to make sure the version of unitree_legged_sdk be v3.2.  
+The Gazebo demo relies on the gazebo simulator environment developed by Unitree Robotics. However, the official environment is updated to support Unitree's new robots. So we provide a custom docker environment to make sure the version of unitree_legged_sdk be v3.2.  
 
 Also, notice ROS melodic supports up to Gazebo 9 so please use Gazebo version < 9.
 
