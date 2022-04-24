@@ -6,11 +6,10 @@
 #define A1_CPP_UTILS_H
 
 #include <iostream>
+#include <vector>
 #include <Eigen/Dense>
 
 #include "../A1Params.h"
-#include "../beizer/include/bezier.h"
-#include "spline.h"
 
 class Utils {
 public:
@@ -42,31 +41,5 @@ private:
     bool curve_constructed;
     float bezier_degree;
 };
-
-class CubicSpineUtils {
-    // use https://kluge.in-chemnitz.de/opensource/spline/ to generate foot trajectory
-public:
-    CubicSpineUtils () {
-        curve_constructed = false;
-    }
-    // set of functions create spline curves, get points, reset
-    bool set_foot_pos_curve(
-            Eigen::Vector3d foot_pos_start,
-            Eigen::Vector3d foot_pos_final
-    );
-    Eigen::Vector3d get_foot_pos_curve(double t);
-    Eigen::Vector3d get_foot_vel_curve(double t);
-    Eigen::Vector3d get_foot_acc_curve(double t);
-
-    bool reset_foot_pos_curve() {curve_constructed = false;}
-
-private:
-    int num_pts = 3;
-    bool curve_constructed;
-    tk::spline sp_x;
-    tk::spline sp_y;
-    tk::spline sp_z;
-};
-
 
 #endif //A1_CPP_UTILS_H

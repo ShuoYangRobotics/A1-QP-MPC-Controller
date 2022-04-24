@@ -46,7 +46,6 @@ public:
     Eigen::Vector3d compute_walking_surface(A1CtrlStates &state);
 
 private:
-    CubicSpineUtils splineUtils[NUM_LEG];
     BezierUtils bezierUtils[NUM_LEG];
 
     Eigen::Matrix<double, 6, 1> root_acc;
