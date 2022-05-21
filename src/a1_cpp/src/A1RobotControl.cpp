@@ -355,10 +355,12 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
         double F_R_diff = state.foot_pos_recent_contact(2, 0) + state.foot_pos_recent_contact(2, 1) - state.foot_pos_recent_contact(2, 2) -
                         state.foot_pos_recent_contact(2, 3);
 
-        if (F_R_diff > 0.05) {
-        state.root_euler_d[1] = -terrain_angle;
-        } else {
-        state.root_euler_d[1] = terrain_angle;
+        if (state.use_terrain_adapt) {
+            if (F_R_diff > 0.05) {
+            state.root_euler_d[1] = -terrain_angle;
+            } else {
+            state.root_euler_d[1] = terrain_angle;
+            }
         }
 
 

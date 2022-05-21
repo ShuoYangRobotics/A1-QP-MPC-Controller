@@ -9,7 +9,7 @@ To facilitate quadruped research and application development, we provide interfa
     2. A1 Robot hardware
     3. A1 Robot simulated in Nvidia Isaac Sim Simulator 
 
-Even if you do not have a A1 robot hardware, our simulation setup can let you do research in either the Gazebo simulator or the Nvidia Isaac Sim simulator. Various efforts have been done to reduce the sim2real gap in this work. 
+Even if you do not have an A1 robot hardware, our simulation setup can let you do research in either the Gazebo simulator or the Nvidia Isaac Sim simulator. Various efforts have been done to reduce the sim2real gap in this work. 
 
 The features of this controller include
 

@@ -47,7 +47,7 @@ public:
     bool send_cmd();
 
     // callback functions
-    void gt_pose_callback(const nav_msgs::Odometry::ConstPtr &odom);
+    void gt_pose_callback(const geometry_msgs::PoseStamped::ConstPtr &pose_data);
 
     void imu_callback(const sensor_msgs::Imu::ConstPtr &imu);
 
@@ -105,6 +105,14 @@ private:
     A1CtrlStates a1_ctrl_states;
     A1RobotControl _root_control;
     A1BasicEKF a1_estimate;
+    
+    // filters
+    MovingWindowFilter acc_x;
+    MovingWindowFilter acc_y;
+    MovingWindowFilter acc_z;
+    MovingWindowFilter gyro_x;
+    MovingWindowFilter gyro_y;
+    MovingWindowFilter gyro_z;
 };
 
 #endif //A1_CPP_ISAACA1ROS_H

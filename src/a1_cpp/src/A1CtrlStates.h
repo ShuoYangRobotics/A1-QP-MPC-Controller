@@ -19,6 +19,7 @@ public:
 
     void reset() {
         stance_leg_control_type = 1;
+        use_terrain_adapt = 1;
         movement_mode = 0;
         counter_per_gait = 120 * 2;
         counter_per_swing = 120;
@@ -133,6 +134,8 @@ public:
 
     void resetFromROSParam(ros::NodeHandle &_nh) {
         _nh.param("stance_leg_control_type", stance_leg_control_type, 1);
+        _nh.param("use_terrain_adapt", use_terrain_adapt, 1);
+        
 
         _nh.param("a1_robot_mass", robot_mass, 13.0);
 
@@ -325,6 +328,7 @@ public:
     // variables
     int stance_leg_control_type; // 0: QP, 1: MPC
     int movement_mode;  // 0: standstill, 1: start to locomote
+    int use_terrain_adapt; 
     double control_dt = MAIN_UPDATE_FREQUENCY / 1000.0;
 
     // period of one gait cycle

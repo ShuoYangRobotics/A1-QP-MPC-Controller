@@ -59,6 +59,12 @@ IsaacA1ROS::IsaacA1ROS(ros::NodeHandle &_nh) {
         rho_fix_list.push_back(rho_fix);
         rho_opt_list.push_back(rho_opt);
     }
+    acc_x = MovingWindowFilter(5);
+    acc_y = MovingWindowFilter(5);
+    acc_z = MovingWindowFilter(5);
+    gyro_x = MovingWindowFilter(5);
+    gyro_y = MovingWindowFilter(5);
+    gyro_z = MovingWindowFilter(5);
 }
 
 bool IsaacA1ROS::update_foot_forces_grf(double dt) {
@@ -174,30 +180,26 @@ bool IsaacA1ROS::send_cmd() {
 }
 
 // callback functions
-void IsaacA1ROS::gt_pose_callback(const nav_msgs::Odometry::ConstPtr &odom) {
+void IsaacA1ROS::gt_pose_callback(const geometry_msgs::PoseStamped::ConstPtr &pose_data) {
     // update
-    a1_ctrl_states.root_quat = Eigen::Quaterniond(odom->pose.pose.orientation.w,
-                                                  odom->pose.pose.orientation.x,
-                                                  odom->pose.pose.orientation.y,
-                                                  odom->pose.pose.orientation.z);
-    a1_ctrl_states.root_pos << odom->pose.pose.position.x,
-            odom->pose.pose.position.y,
-            odom->pose.pose.position.z;
-    // make sure root_lin_vel is in world frame
-    a1_ctrl_states.root_lin_vel << odom->twist.twist.linear.x,
-            odom->twist.twist.linear.y,
-            odom->twist.twist.linear.z;
+    a1_ctrl_states.root_quat = Eigen::Quaterniond(pose_data->pose.orientation.w,
+                                                  pose_data->pose.orientation.x,
+                                                  pose_data->pose.orientation.y,
+                                                  pose_data->pose.orientation.z);
+    a1_ctrl_states.root_pos << pose_data->pose.position.x,
+            pose_data->pose.position.y,
+            pose_data->pose.position.z;
 
-    // make sure root_ang_vel is in world frame
-    a1_ctrl_states.root_ang_vel << odom->twist.twist.angular.x,
-            odom->twist.twist.angular.y,
-            odom->twist.twist.angular.z;
     // calculate several useful variables
     // euler should be roll pitch yaw
     a1_ctrl_states.root_rot_mat = a1_ctrl_states.root_quat.toRotationMatrix();
 //    a1_ctrl_states.root_euler = a1_ctrl_states.root_rot_mat.eulerAngles(0, 1, 2);
     a1_ctrl_states.root_euler = Utils::quat_to_euler(a1_ctrl_states.root_quat);
     double yaw_angle = a1_ctrl_states.root_euler[2];
+
+    // make sure root_ang_vel is in world frame
+    // a1_ctrl_states.root_ang_vel = a1_ctrl_states.root_rot_mat * a1_ctrl_states.imu_ang_vel;
+    a1_ctrl_states.root_ang_vel = a1_ctrl_states.root_rot_mat * a1_ctrl_states.imu_ang_vel;
 
     a1_ctrl_states.root_rot_mat_z = Eigen::AngleAxisd(yaw_angle, Eigen::Vector3d::UnitZ());
 
@@ -223,12 +225,18 @@ void IsaacA1ROS::gt_pose_callback(const nav_msgs::Odometry::ConstPtr &odom) {
 
 void IsaacA1ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &imu) {
 //    double wx = imu->angular_velocity.x;
-    a1_ctrl_states.imu_acc = Eigen::Vector3d(imu->linear_acceleration.x,
-                                             imu->linear_acceleration.y,
-                                             imu->linear_acceleration.z);
-    a1_ctrl_states.imu_ang_vel = Eigen::Vector3d(imu->angular_velocity.x,
-                                                 imu->angular_velocity.y,
-                                                 imu->angular_velocity.z);
+    a1_ctrl_states.imu_acc = Eigen::Vector3d(
+            acc_x.CalculateAverage(imu->linear_acceleration.x),
+            acc_y.CalculateAverage(imu->linear_acceleration.y),
+            acc_z.CalculateAverage(imu->linear_acceleration.z)
+    );
+    a1_ctrl_states.imu_ang_vel = Eigen::Vector3d(
+            gyro_x.CalculateAverage(imu->angular_velocity.x),
+            gyro_y.CalculateAverage(imu->angular_velocity.y),
+            gyro_z.CalculateAverage(imu->angular_velocity.z)
+    );
+
+
     return;
 }
 
