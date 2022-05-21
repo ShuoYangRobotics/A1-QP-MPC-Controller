@@ -57,7 +57,7 @@ Then we start docker by the following command (you may add sudo depending on you
     --network host \
     --cap-add=IPC_LOCK --cap-add=sys_nice \
     -v PATH_OF_THE_REPO_ON_YOUR_HOST_COMPUTER:/root/A1_ctrl_ws/src/A1_Ctrl \
-    --device /dev/input
+    --device /dev/input \
     --name a1_cpp_ctrl_docker \
     a1_cpp_ctrl_image
 ```

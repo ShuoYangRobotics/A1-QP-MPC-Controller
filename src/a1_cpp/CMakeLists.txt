@@ -57,7 +57,6 @@ add_library(a1_lib
         src/utils/Utils.h
         src/A1RobotControl.cpp
         src/A1RobotControl.h
-        src/utils/spline.h
         src/A1BasicEKF.cpp
         src/A1BasicEKF.h
         src/ConvexMpc.cpp
@@ -112,10 +111,6 @@ target_link_libraries(hardware_a1_ctrl
 
 # tests
 # Declare a cpp executable
-add_executable(test_spline src/test/test_spline.cpp
-        src/utils/Utils.cpp
-        src/utils/Utils.h
-        )
 
 add_executable(test_rotation src/test/test_rotation.cpp
         src/utils/Utils.cpp

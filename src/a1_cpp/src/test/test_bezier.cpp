@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <Eigen/Dense>
-#include "../utils/spline.h"
 #include "../utils/Utils.h"
 
 int main(int, char**) {
