@@ -28,9 +28,9 @@ int main(int argc, char **argv) {
     }
 
     // make sure the ROS infra DO NOT use sim time, otherwise the controller cannot run with correct time steps
-    bool use_sim_time;
+    std::string use_sim_time;
     if (ros::param::get("/use_sim_time", use_sim_time)) {
-        if (use_sim_time != false) {
+        if (use_sim_time != "false") {
             std::cout << "hardware must have real time in order to use this program!" << std::endl;
             return -1;
         }

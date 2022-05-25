@@ -462,7 +462,7 @@ Eigen::Matrix<double, 3, NUM_LEG> A1RobotControl::compute_grf(A1CtrlStates &stat
         double mpc_dt = 0.0025;
 
         // in simulation, use dt has no problem
-        if (use_sim_time == true) {
+        if (use_sim_time == "true") {
             mpc_dt = dt;
         }
 

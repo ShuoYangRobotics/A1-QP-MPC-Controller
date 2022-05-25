@@ -100,7 +100,7 @@ private:
     //MPC does not start for the first 10 ticks to prevent uninitialized NAN goes into joint_torques
     int mpc_init_counter;
 
-    bool use_sim_time;
+    std::string use_sim_time;
 
     // filters
     MovingWindowFilter terrain_angle_filter;
