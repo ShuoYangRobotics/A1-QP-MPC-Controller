@@ -263,13 +263,33 @@ RUN echo "export ROS_MASTER_URI=http://localhost:11311;export ROS_IP=localhost;e
 
 RUN echo "export PATH=/usr/local/julia/bin:${PATH}" >> ~/.bashrc
 
+# install cmake 3.20 
+WORKDIR /tmp 
+RUN apt-get -y install wget libtool
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2.tar.gz
+RUN tar -zxvf cmake-3.20.2.tar.gz
+RUN ls
+WORKDIR /tmp/cmake-3.20.2
+RUN ./bootstrap
+RUN make -j8
+RUN make install
+
+
+# install glib 2.68
+RUN apt-get install meson
+RUN pip3 install --target=/usr/bin --upgrade meson
+WORKDIR /tmp  
+RUN wget https://mirror.umd.edu/gnome/sources/glib/2.68/glib-2.68.3.tar.xz
+RUN tar xf glib-2.68.3.tar.xz
+
+WORKDIR /tmp/glib-2.68.3
+RUN meson --prefix /usr _build
+RUN ninja -C _build
+RUN ninja -C _build install
 ### How to build this docker 
 # sudo docker build -t a1_cpp_ctrl_focal .
 
 ### run docker as a ssh daemon
-# sudo docker run -d --network host -v /home/shuoy/research/A1_Ctrl:/root/A1_Ctrl  --name a1_ros_ctrl_docker a1_ros_ctrl_image
-# docker start xx
-# ssh root@localhost -p2235
 
 # sudo docker run -d \
 # --network host \
@@ -278,3 +298,7 @@ RUN echo "export PATH=/usr/local/julia/bin:${PATH}" >> ~/.bashrc
 # --device /dev/input \
 # --name a1_cpp_ctrl_focal_docker \
 # a1_cpp_ctrl_focal
+
+
+
+# ssh root@localhost -p2235
