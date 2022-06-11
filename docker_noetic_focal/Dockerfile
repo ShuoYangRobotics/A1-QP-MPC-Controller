@@ -286,6 +286,19 @@ WORKDIR /tmp/glib-2.68.3
 RUN meson --prefix /usr _build
 RUN ninja -C _build
 RUN ninja -C _build install
+
+
+# casadi 
+WORKDIR $SUPPORT_WS
+RUN git clone https://github.com/casadi/casadi.git 
+RUN git checkout tags/3.5.5
+RUN cd casadi; mkdir build; cd build
+RUN cmake -DWITH_CPLEX=OFF -DWITH_KNITRO=OFF -DWITH_OOQP=OFF -DWITH_SNOPT=OFF ..
+RUN make -j8
+RUN make install
+# /usr/local/lib/casadi/
+# /usr/local/include/casadi
+
 ### How to build this docker 
 # sudo docker build -t a1_cpp_ctrl_focal .
 
@@ -302,3 +315,5 @@ RUN ninja -C _build install
 
 
 # ssh root@localhost -p2235
+
+
