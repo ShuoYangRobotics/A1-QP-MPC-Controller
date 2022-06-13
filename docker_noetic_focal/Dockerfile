@@ -299,6 +299,16 @@ RUN make install
 # /usr/local/lib/casadi/
 # /usr/local/include/casadi
 
+# filter for 
+WORKDIR $SUPPORT_WS
+RUN git clone git@github.com:ShuoYangRobotics/gram_savitzky_golay.git
+RUN cd gram_savitzky_golay 
+RUN git submodule init
+RUN git submodule update
+RUN mkdir build && cd build
+RUN cmake -DCMAKE_BUILD_TYPE=Release ../
+RUN make && make install
+
 ### How to build this docker 
 # sudo docker build -t a1_cpp_ctrl_focal .
 

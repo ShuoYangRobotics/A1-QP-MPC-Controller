@@ -1,0 +1,66 @@
+root@shuoyang-Z390:/tmp# wget http://ftp.de.debian.org/debian/pool/main/g/glib2.0/libglib2.0-0_2.66.8-1_amd64.deb
+
+
+root@shuoyang-Z390:/tmp# dpkg -i libglib2.0-0_2.66.8-1_amd64.deb 
+dpkg: warning: downgrading libglib2.0-0:amd64 from 2.68.4-1ubuntu1 to 2.66.8-1
+(Reading database ... 119026 files and directories currently installed.)
+Preparing to unpack libglib2.0-0_2.66.8-1_amd64.deb ...
+Unpacking libglib2.0-0:amd64 (2.66.8-1) over (2.68.4-1ubuntu1) ...
+dpkg: dependency problems prevent configuration of libglib2.0-0:amd64:
+ libglib2.0-0:amd64 depends on libmount1 (>= 2.35.2-7~); however:
+  Version of libmount1:amd64 on system is 2.34-0.1ubuntu9.3.
+ libglib2.0-0:amd64 depends on libselinux1 (>= 3.1~); however:
+  Version of libselinux1:amd64 on system is 3.0-1build2.
+
+dpkg: error processing package libglib2.0-0:amd64 (--install):
+ dependency problems - leaving unconfigured
+Processing triggers for libc-bin (2.31-0ubuntu9.7) ...
+Errors were encountered while processing:
+ libglib2.0-0:amd64
+root@shuoyang-Z390:/tmp# wget http://archive.ubuntu.com/ubuntu/pool/main/libs/libselinux/libselinux1_3.1-3build2_amd64.deb
+
+root@shuoyang-Z390:/tmp# dpkg -i libselinux1_3.1-3build2_amd64.deb
+
+root@shuoyang-Z390:/tmp# wget http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/libc6_2.34-0ubuntu3_amd64.deb
+--2022-05-30 22:33:19--  http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/libc6_2.34-0ubuntu3_amd64.deb
+
+root@shuoyang-Z390:/tmp# dpkg -i libc6_2.34-0ubuntu3_amd64.deb
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+root@shuoyang-Z390:/tmp# sudo dpkg -i libc6_2.34-0ubuntu3_amd64.deb
+sudo: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+sudo: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+root@shuoyang-Z390:/tmp# dpkg -i libc6_2.34-0ubuntu3_amd64.deb
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+root@shuoyang-Z390:/tmp# dpkg -i libselinux1_3.1-3build2_amd64.deb
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+root@shuoyang-Z390:/tmp# wget http://archive.ubuntu.com/ubuntu/pool/main/u/util-linux/libmount1_2.36.1-8ubuntu1_amd64.deb
+
+root@shuoyang-Z390:/tmp# ls
+ls: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+ls: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+
+root@shuoyang-Z390:/tmp# dpkg -i *.deb
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+root@shuoyang-Z390:/tmp# apt-get -f install
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Correcting dependencies... failed.
+The following packages have unmet dependencies:
+ libglib2.0-0 : Depends: libmount1 (>= 2.35.2-7~) but 2.34-0.1ubuntu9.3 is installed
+                Recommends: xdg-user-dirs but it is not installed
+ libglib2.0-bin : Depends: libglib2.0-0 (= 2.64.6-1~ubuntu20.04.4) but 2.66.8-1 is installed
+ libglib2.0-dev : Depends: libglib2.0-0 (= 2.64.6-1~ubuntu20.04.4) but 2.66.8-1 is installed
+ libselinux1 : Depends: libc6 (>= 2.34) but 2.31-0ubuntu9.9 is installed
+ libselinux1-dev : Depends: libselinux1 (= 3.0-1build2) but 3.1-3build2 is installed
+W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list.d/ros-latest.list:1 and /etc/apt/sources.list.d/ros1-latest.list:1
+W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list.d/ros-latest.list:1 and /etc/apt/sources.list.d/ros1-latest.list:1
+E: Error, pkgProblemResolver::Resolve generated breaks, this may be caused by held packages.
+E: Unable to correct dependencies
+root@shuoyang-Z390:/tmp# dpkg -i libc6_2.34-0ubuntu3_amd64.deb 
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
+dpkg: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /lib/x86_64-linux-gnu/libselinux.so.1)
