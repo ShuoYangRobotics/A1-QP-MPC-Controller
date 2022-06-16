@@ -299,7 +299,7 @@ RUN make install
 # /usr/local/lib/casadi/
 # /usr/local/include/casadi
 
-# filter for 
+# savitzky_golay filter for smooth signal differentiation 
 WORKDIR $SUPPORT_WS
 RUN git clone git@github.com:ShuoYangRobotics/gram_savitzky_golay.git
 RUN cd gram_savitzky_golay 
