@@ -291,9 +291,10 @@ RUN ninja -C _build install
 # casadi 
 WORKDIR $SUPPORT_WS
 RUN git clone https://github.com/casadi/casadi.git
-RUN cd casadi
+WORKDIR ${SUPPORT_WS}/casadi
 RUN git checkout tags/3.5.5
-RUN mkdir build; cd build
+RUN mkdir build
+WORKDIR ${SUPPORT_WS}/casadi/build
 RUN cmake -DWITH_CPLEX=OFF -DWITH_KNITRO=OFF -DWITH_OOQP=OFF -DWITH_SNOPT=OFF ..
 RUN make -j8
 RUN make install
@@ -302,11 +303,12 @@ RUN make install
 
 # savitzky_golay filter for smooth signal differentiation 
 WORKDIR $SUPPORT_WS
-RUN git clone git@github.com:ShuoYangRobotics/gram_savitzky_golay.git
-RUN cd gram_savitzky_golay 
+RUN git clone https://github.com/ShuoYangRobotics/gram_savitzky_golay.git
+WORKDIR ${SUPPORT_WS}/gram_savitzky_golay 
 RUN git submodule init
 RUN git submodule update
-RUN mkdir build && cd build
+RUN mkdir build 
+WORKDIR ${SUPPORT_WS}/gram_savitzky_golay/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ../
 RUN make && make install
 
