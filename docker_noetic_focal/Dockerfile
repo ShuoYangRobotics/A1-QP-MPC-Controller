@@ -290,9 +290,10 @@ RUN ninja -C _build install
 
 # casadi 
 WORKDIR $SUPPORT_WS
-RUN git clone https://github.com/casadi/casadi.git 
+RUN git clone https://github.com/casadi/casadi.git
+RUN cd casadi
 RUN git checkout tags/3.5.5
-RUN cd casadi; mkdir build; cd build
+RUN mkdir build; cd build
 RUN cmake -DWITH_CPLEX=OFF -DWITH_KNITRO=OFF -DWITH_OOQP=OFF -DWITH_SNOPT=OFF ..
 RUN make -j8
 RUN make install
