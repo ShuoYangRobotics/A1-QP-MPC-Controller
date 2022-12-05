@@ -1,4 +1,11 @@
 # A1-QP-MPC-Controller
+
+## Update 2022-12-05
+
+Dear friends, since the release of this code base we got feedback on various aspects. A revised MPC controller is developed at [CMU REX Lab Github](https://github.com/RoboticExplorationLab/legged_mpc_control). Please try the revised version. I will continue the development there. 
+
+
+
 ## Introduction
 
 This repo provides a quadruped control stack that controls the Unitree A1 robot, one of the most popular quadruped robots used in academic research in recent years. This control stack implements two famous model base control methods [1][2]. Additionally, we use Docker and ROS1 to make it easy to install and develop.
